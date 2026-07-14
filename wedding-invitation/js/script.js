@@ -808,18 +808,53 @@
       document.body.removeChild(ta);
     }
 
-    // Add to calendar (.ics) — same routine the floating button uses
+    // Add to calendar — Google Calendar on mobile, .ics download on desktop
     var cal = $("#add-calendar");
     if (cal) {
       cal.addEventListener("click", function () {
-        downloadIcs();
-        say("Calendar invite downloaded.");
+        var mode = addToCalendar();
+        say(
+          mode === "google"
+            ? "Opening Google Calendar…"
+            : "Calendar invite downloaded.",
+        );
       });
     }
   }
 
   /* Shared by the share section and the floating button, so the event details
      can never drift apart between the two. */
+  function isMobileView() {
+    return window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  function getGoogleCalendarUrl() {
+    return (
+      "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+      "&text=" +
+      encodeURIComponent(WEDDING.title) +
+      "&dates=" +
+      WEDDING.startUTC +
+      "/" +
+      WEDDING.endUTC +
+      "&details=" +
+      encodeURIComponent(
+        "Together with our families, we joyfully invite you to celebrate the beginning of our forever.",
+      ) +
+      "&location=" +
+      encodeURIComponent(WEDDING.venue)
+    );
+  }
+
+  function addToCalendar() {
+    if (isMobileView()) {
+      window.open(getGoogleCalendarUrl(), "_blank", "noopener,noreferrer");
+      return "google";
+    }
+    downloadIcs();
+    return "ics";
+  }
+
   function downloadIcs() {
     var ics = [
       "BEGIN:VCALENDAR",
@@ -898,8 +933,12 @@
 
     if (cal) {
       cal.addEventListener("click", function () {
-        downloadIcs();
-        announce("Calendar invite downloaded ❤");
+        var mode = addToCalendar();
+        announce(
+          mode === "google"
+            ? "Opening Google Calendar ❤"
+            : "Calendar invite downloaded ❤",
+        );
       });
     }
 
