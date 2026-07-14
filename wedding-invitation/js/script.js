@@ -495,51 +495,44 @@
   }
 
   /* ─────────────────────────────────────────────────────────────
-     6. Garland curtain — the strands part around the pointer
-        Each strand is pushed away from the cursor, hardest at the cursor and
-        easing off with distance, then springs back. Pivot is the top of the
-        strand, so it swings like a real hanging garland.
+     6. Garland curtain — pointer on desktop, gyro / tilt on mobile
+        Each strand is a damped pendulum spring-coupled to its neighbours.
+        Desktop: strands part around the cursor. Mobile: phone tilt drives
+        the same wave through DeviceOrientation (with iOS permission on tap).
      ───────────────────────────────────────────────────────────── */
   function initGarlandCurtain() {
     var row = $("[data-curtain]");
     var hero = $("#hero");
-    if (!row || !hero) return;
+    if (!row || !hero || REDUCED) return;
 
-    // Pointer-driven only: no hover on touch, and it's motion nobody asked for
-    // if the guest has said they don't want motion.
-    if (
-      REDUCED ||
-      !window.matchMedia("(hover: hover) and (pointer: fine)").matches
-    )
-      return;
+    var usePointer = window.matchMedia(
+      "(hover: hover) and (pointer: fine)",
+    ).matches;
+    var useOrientation =
+      !usePointer && "DeviceOrientationEvent" in window;
 
-    /* Each strand is a damped pendulum, and every strand is spring-coupled to
-       the two beside it. That coupling is the discrete wave equation, so a
-       disturbance doesn't just sit where the cursor is — it ripples outward
-       along the curtain and reflects off the ends, the way real beads behave.
-       Nothing here is tweened to a target; it's all forces and momentum, which
-       is what gives the overshoot and the settling wobble. */
-    /* CURSOR_K has to comfortably outweigh STIFFNESS, or gravity wins the tug of
-       war and the strand only reaches a fraction of MAX_ROT — the curtain barely
-       opens. It's a force here, not a position, so it must be strong enough to
-       actually hold the strand aside. */
-    var STIFFNESS = 26; // pull back to rest (sets the swing period)
-    var DAMPING = 1.6; // bleeds energy away; lower = rings on longer
-    var COUPLING = 48; // how hard a strand drags its neighbours — the wave speed
-    var CURSOR_K = 115; // how firmly the pointer holds a strand aside
-    var RADIUS = 170; // px of influence either side of the cursor
-    var MAX_ROT = 24; // deg the pointer can hold a strand at
-    var SWIPE = 0.9; // extra kick from a fast cursor — this is what throws a wave
+    if (!usePointer && !useOrientation) return;
+
+    var STIFFNESS = 26;
+    var DAMPING = 1.6;
+    var COUPLING = 48;
+    var CURSOR_K = useOrientation ? 88 : 115;
+    var RADIUS = useOrientation ? 9999 : 170; // tilt reaches every strand
+    var MAX_ROT = useOrientation ? 20 : 24;
+    var SWIPE = useOrientation ? 1.15 : 0.9;
     var MAX_STEP = 1 / 60;
 
     var strands = [];
     var pointer = { x: 0, y: 0, vx: 0, active: false };
     var frame = null;
     var last = 0;
+    var smoothGamma = 0;
+    var prevSmoothGamma = 0;
+    var orientationLive = false;
 
     function measure() {
       var visible = $$(".garland", row).filter(function (el) {
-        return el.offsetParent !== null; // skip the ones CSS hides
+        return el.offsetParent !== null;
       });
       var longest = 1;
       visible.forEach(function (el) {
@@ -552,10 +545,9 @@
           img: $("img", el),
           cx: box.left + box.width / 2 + window.scrollX,
           bottom: box.top + box.height + window.scrollY,
-          // a longer strand is a longer pendulum: it swings slower and wider
           len: Math.max(0.45, box.height / longest),
-          a: 0, // angle, deg
-          v: 0, // angular velocity, deg/s
+          a: 0,
+          v: 0,
         };
       });
     }
@@ -567,42 +559,37 @@
       for (i = 0; i < n; i++) {
         s = strands[i];
 
-        // 1. the cursor holds nearby strands aside
         var force = 0;
         if (pointer.active) {
           var dx = s.cx - pointer.x;
           var dist = Math.abs(dx);
           if (dist < RADIUS) {
-            var f = 1 - dist / RADIUS;
-            f = f * f * (3 - 2 * f); // smoothstep falloff
+            var f = useOrientation
+              ? 1
+              : 1 - dist / RADIUS;
+            if (!useOrientation) f = f * f * (3 - 2 * f);
 
-            var below = pointer.y - s.bottom; // fades out past the hem
+            var below = pointer.y - s.bottom;
             var vf = below <= 0 ? 1 : Math.max(0, 1 - below / 220);
 
-            var dir = dx >= 0 ? 1 : -1; // always away from the cursor
+            var dir = dx >= 0 ? 1 : -1;
             var hold = dir * f * vf * MAX_ROT;
             force += CURSOR_K * (hold - s.a);
-
-            // a fast swipe drags the strands with it, throwing a travelling wave
             force += pointer.vx * SWIPE * f * vf;
           }
         }
 
-        // 2. gravity pulls it back to hanging
         force += (-STIFFNESS / s.len) * s.a;
 
-        // 3. its neighbours drag on it — this is what makes the wave travel
-        var left = i > 0 ? strands[i - 1].a : s.a; // ends are free, not pinned
+        var left = i > 0 ? strands[i - 1].a : s.a;
         var right = i < n - 1 ? strands[i + 1].a : s.a;
         force += COUPLING * (left - s.a + (right - s.a));
 
-        // 4. drag
         force += -DAMPING * s.v;
 
         s.v += force * dt;
       }
 
-      // integrate after all forces are read, so no strand sees a half-updated neighbour
       for (i = 0; i < n; i++) strands[i].a += strands[i].v * dt;
     }
 
@@ -613,8 +600,6 @@
         var s = strands[i];
         if (Math.abs(s.a) > 0.05 || Math.abs(s.v) > 0.5) settled = false;
 
-        // the beads lag behind the swing: shear the strand against its own
-        // motion so it flexes instead of staying a rigid stick
         var lag = Math.max(-7, Math.min(7, -s.v * 0.045));
 
         s.img.style.transform =
@@ -626,21 +611,27 @@
     function tick(now) {
       var dt = last ? (now - last) / 1000 : MAX_STEP;
       last = now;
-      if (dt > 0.05) dt = 0.05; // a tab-switch must not explode it
+      if (dt > 0.05) dt = 0.05;
 
-      // fixed substeps keep the spring stable however the frame rate wanders
       var steps = Math.max(1, Math.ceil(dt / MAX_STEP));
       var h = dt / steps;
       for (var k = 0; k < steps; k++) step(h);
 
-      pointer.vx *= 0.82; // the swipe kick decays
+      pointer.vx *= useOrientation ? 0.78 : 0.82;
 
       var settled = render();
-      if (!settled || pointer.active) {
+      var tiltIdle =
+        useOrientation &&
+        Math.abs(smoothGamma) < 0.35 &&
+        Math.abs(pointer.vx) < 0.08;
+      var moving = !settled || (pointer.active && !tiltIdle);
+
+      if (moving) {
         frame = requestAnimationFrame(tick);
       } else {
         frame = null;
         last = 0;
+        if (useOrientation) pointer.active = false;
       }
     }
 
@@ -651,22 +642,90 @@
       }
     }
 
-    hero.addEventListener(
-      "pointermove",
-      function (e) {
-        if (pointer.active) pointer.vx = e.pageX - pointer.x; // px moved this event
-        pointer.x = e.pageX;
-        pointer.y = e.pageY;
-        pointer.active = true;
-        wake();
-      },
-      { passive: true },
-    );
-
-    hero.addEventListener("pointerleave", function () {
-      pointer.active = false; // let them swing themselves back to rest
+    function mapTiltToPointer(gamma) {
+      var box = hero.getBoundingClientRect();
+      var norm = Math.max(-1, Math.min(1, gamma / 28));
+      pointer.x = box.left + window.scrollX + box.width * (0.5 + norm * 0.44);
+      pointer.y = box.top + window.scrollY + box.height * 0.55;
+      pointer.vx = (smoothGamma - prevSmoothGamma) * (useOrientation ? 4.5 : 1);
+      prevSmoothGamma = smoothGamma;
+      pointer.active = true;
       wake();
-    });
+    }
+
+    function onOrientation(e) {
+      if (e.gamma == null) return;
+      smoothGamma += (e.gamma - smoothGamma) * 0.14;
+      mapTiltToPointer(smoothGamma);
+    }
+
+    function onMotion(e) {
+      var acc = e.accelerationIncludingGravity;
+      if (!acc || orientationLive) return;
+      var tilt = acc.x;
+      if (Math.abs(tilt) < 0.15) return;
+      smoothGamma += (tilt * 2.8 - smoothGamma) * 0.12;
+      mapTiltToPointer(smoothGamma);
+    }
+
+    function startOrientation() {
+      if (orientationLive) return;
+      orientationLive = true;
+      hero.classList.add("hero--tilt");
+      window.addEventListener("deviceorientation", onOrientation, {
+        passive: true,
+      });
+      window.addEventListener("devicemotion", onMotion, { passive: true });
+      wake();
+    }
+
+    function requestOrientationAccess() {
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function"
+      ) {
+        DeviceOrientationEvent.requestPermission()
+          .then(function (state) {
+            if (state === "granted") startOrientation();
+          })
+          .catch(function () { /* guest declined */ });
+        return;
+      }
+      startOrientation();
+    }
+
+    if (usePointer) {
+      hero.addEventListener(
+        "pointermove",
+        function (e) {
+          if (pointer.active) pointer.vx = e.pageX - pointer.x;
+          pointer.x = e.pageX;
+          pointer.y = e.pageY;
+          pointer.active = true;
+          wake();
+        },
+        { passive: true },
+      );
+
+      hero.addEventListener("pointerleave", function () {
+        pointer.active = false;
+        wake();
+      });
+    } else {
+      var needsMotionPermission =
+        typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function";
+
+      if (needsMotionPermission) {
+        hero.addEventListener(
+          "touchstart",
+          requestOrientationAccess,
+          { once: true, passive: true },
+        );
+      } else {
+        requestOrientationAccess();
+      }
+    }
 
     measure();
     window.addEventListener(
