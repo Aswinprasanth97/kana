@@ -10,9 +10,14 @@
   var WEDDING = {
     title: "The Wedding of Arjun & Sandra",
     venue: "City Palace Auditorium, Beypore, Kozhikode, Kerala",
-    // 10:30–11:30 IST (UTC+05:30) on 30 August 2026, expressed in UTC for the .ics
+    // 10:30–11:30 IST (UTC+05:30) on 30 August 2026
     startUTC: "20260830T050000Z",
     endUTC: "20260830T060000Z",
+    startLocal: "20260830T103000",
+    endLocal: "20260830T113000",
+    timezone: "Asia/Kolkata",
+    description:
+      "Together with our families, we joyfully invite you to celebrate the beginning of our forever.",
   };
 
   var $ = function (sel, ctx) {
@@ -497,8 +502,8 @@
   /* ─────────────────────────────────────────────────────────────
      6. Garland curtain — pointer on desktop, gyro / tilt on mobile
         Each strand is a damped pendulum spring-coupled to its neighbours.
-        Desktop: strands part around the cursor. Mobile: phone tilt drives
-        the same wave through DeviceOrientation (with iOS permission on tap).
+        Desktop: strands part around the cursor. Mobile: phone tilt leans
+        the whole curtain (DeviceOrientation, with iOS permission on tap).
      ───────────────────────────────────────────────────────────── */
   function initGarlandCurtain() {
     var row = $("[data-curtain]");
@@ -516,10 +521,10 @@
     var STIFFNESS = 26;
     var DAMPING = 1.6;
     var COUPLING = 48;
-    var CURSOR_K = useOrientation ? 88 : 115;
-    var RADIUS = useOrientation ? 9999 : 170; // tilt reaches every strand
-    var MAX_ROT = useOrientation ? 20 : 24;
-    var SWIPE = useOrientation ? 1.15 : 0.9;
+    var CURSOR_K = useOrientation ? 95 : 115;
+    var RADIUS = 170;
+    var MAX_ROT = useOrientation ? 22 : 24;
+    var SWIPE = useOrientation ? 0.85 : 0.9;
     var MAX_STEP = 1 / 60;
 
     var strands = [];
@@ -529,6 +534,7 @@
     var smoothGamma = 0;
     var prevSmoothGamma = 0;
     var orientationLive = false;
+    var permissionAsked = false;
 
     function measure() {
       var visible = $$(".garland", row).filter(function (el) {
@@ -558,24 +564,31 @@
 
       for (i = 0; i < n; i++) {
         s = strands[i];
-
         var force = 0;
+
         if (pointer.active) {
-          var dx = s.cx - pointer.x;
-          var dist = Math.abs(dx);
-          if (dist < RADIUS) {
-            var f = useOrientation
-              ? 1
-              : 1 - dist / RADIUS;
-            if (!useOrientation) f = f * f * (3 - 2 * f);
+          if (useOrientation) {
+            /* Lean the whole curtain with the phone — each strand gets a
+               slightly different target so the wave still travels. */
+            var spread = (i / Math.max(1, n - 1) - 0.5) * 2.8;
+            var target = smoothGamma * 0.48 + spread * smoothGamma * 0.08;
+            force += CURSOR_K * (target - s.a);
+            force += pointer.vx * SWIPE;
+          } else {
+            var dx = s.cx - pointer.x;
+            var dist = Math.abs(dx);
+            if (dist < RADIUS) {
+              var f = 1 - dist / RADIUS;
+              f = f * f * (3 - 2 * f);
 
-            var below = pointer.y - s.bottom;
-            var vf = below <= 0 ? 1 : Math.max(0, 1 - below / 220);
+              var below = pointer.y - s.bottom;
+              var vf = below <= 0 ? 1 : Math.max(0, 1 - below / 220);
 
-            var dir = dx >= 0 ? 1 : -1;
-            var hold = dir * f * vf * MAX_ROT;
-            force += CURSOR_K * (hold - s.a);
-            force += pointer.vx * SWIPE * f * vf;
+              var dir = dx >= 0 ? 1 : -1;
+              var hold = dir * f * vf * MAX_ROT;
+              force += CURSOR_K * (hold - s.a);
+              force += pointer.vx * SWIPE * f * vf;
+            }
           }
         }
 
@@ -617,14 +630,17 @@
       var h = dt / steps;
       for (var k = 0; k < steps; k++) step(h);
 
-      pointer.vx *= useOrientation ? 0.78 : 0.82;
+      pointer.vx *= useOrientation ? 0.75 : 0.82;
 
       var settled = render();
       var tiltIdle =
         useOrientation &&
-        Math.abs(smoothGamma) < 0.35 &&
-        Math.abs(pointer.vx) < 0.08;
-      var moving = !settled || (pointer.active && !tiltIdle);
+        Math.abs(smoothGamma) < 0.25 &&
+        Math.abs(pointer.vx) < 0.05;
+      var moving =
+        !settled ||
+        (pointer.active && !tiltIdle) ||
+        (useOrientation && orientationLive && !tiltIdle);
 
       if (moving) {
         frame = requestAnimationFrame(tick);
@@ -642,30 +658,31 @@
       }
     }
 
-    function mapTiltToPointer(gamma) {
-      var box = hero.getBoundingClientRect();
-      var norm = Math.max(-1, Math.min(1, gamma / 28));
-      pointer.x = box.left + window.scrollX + box.width * (0.5 + norm * 0.44);
-      pointer.y = box.top + window.scrollY + box.height * 0.55;
-      pointer.vx = (smoothGamma - prevSmoothGamma) * (useOrientation ? 4.5 : 1);
+    function applyTilt(raw) {
+      smoothGamma += (raw - smoothGamma) * 0.16;
+      pointer.vx = (smoothGamma - prevSmoothGamma) * 6;
       prevSmoothGamma = smoothGamma;
       pointer.active = true;
       wake();
     }
 
     function onOrientation(e) {
-      if (e.gamma == null) return;
-      smoothGamma += (e.gamma - smoothGamma) * 0.14;
-      mapTiltToPointer(smoothGamma);
+      if (e.gamma != null && !isNaN(e.gamma)) {
+        applyTilt(e.gamma);
+        return;
+      }
+      /* Some devices only report beta in portrait. */
+      if (e.beta != null && !isNaN(e.beta)) {
+        applyTilt((e.beta - 90) * 0.65);
+      }
     }
 
     function onMotion(e) {
       var acc = e.accelerationIncludingGravity;
-      if (!acc || orientationLive) return;
+      if (!acc) return;
       var tilt = acc.x;
-      if (Math.abs(tilt) < 0.15) return;
-      smoothGamma += (tilt * 2.8 - smoothGamma) * 0.12;
-      mapTiltToPointer(smoothGamma);
+      if (Math.abs(tilt) < 0.08) return;
+      applyTilt(tilt * 3.2);
     }
 
     function startOrientation() {
@@ -676,10 +693,14 @@
         passive: true,
       });
       window.addEventListener("devicemotion", onMotion, { passive: true });
+      measure();
       wake();
     }
 
     function requestOrientationAccess() {
+      if (permissionAsked) return;
+      permissionAsked = true;
+
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
         typeof DeviceOrientationEvent.requestPermission === "function"
@@ -717,7 +738,8 @@
         typeof DeviceOrientationEvent.requestPermission === "function";
 
       if (needsMotionPermission) {
-        hero.addEventListener(
+        /* iOS requires a user gesture — any tap on the page counts. */
+        document.addEventListener(
           "touchstart",
           requestOrientationAccess,
           { once: true, passive: true },
@@ -813,13 +835,18 @@
     if (cal) {
       cal.addEventListener("click", function () {
         var mode = addToCalendar();
-        say(
-          mode === "google"
-            ? "Opening Google Calendar…"
-            : "Calendar invite downloaded.",
-        );
+        say(calendarFeedback(mode));
       });
     }
+  }
+
+  function isAndroid() {
+    return /android/i.test(navigator.userAgent);
+  }
+
+  function calendarFeedback(mode) {
+    if (mode === "ics") return "Calendar invite downloaded.";
+    return "Opening Google Calendar — tap Notifications, then Save ❤";
   }
 
   /* Shared by the share section and the floating button, so the event details
@@ -829,34 +856,47 @@
   }
 
   function getGoogleCalendarUrl() {
+    var details =
+      WEDDING.description +
+      "\n\nBefore saving, tap Notifications and add reminders " +
+      "(e.g. 1 day before and 2 hours before) so you do not miss the wedding.";
+
     return (
       "https://calendar.google.com/calendar/render?action=TEMPLATE" +
       "&text=" +
       encodeURIComponent(WEDDING.title) +
       "&dates=" +
-      WEDDING.startUTC +
+      WEDDING.startLocal +
       "/" +
-      WEDDING.endUTC +
+      WEDDING.endLocal +
+      "&ctz=" +
+      encodeURIComponent(WEDDING.timezone) +
       "&details=" +
-      encodeURIComponent(
-        "Together with our families, we joyfully invite you to celebrate the beginning of our forever.",
-      ) +
+      encodeURIComponent(details) +
       "&location=" +
       encodeURIComponent(WEDDING.venue)
     );
   }
 
-  function addToCalendar() {
-    if (isMobileView()) {
-      window.open(getGoogleCalendarUrl(), "_blank", "noopener,noreferrer");
-      return "google";
+  function openGoogleCalendarApp() {
+    var url = getGoogleCalendarUrl();
+    var query = url.replace(/^https?:\/\/[^?]+\?/, "");
+
+    if (isAndroid()) {
+      window.location.href =
+        "intent://calendar.google.com/calendar/render?" +
+        query +
+        "#Intent;scheme=https;package=com.google.android.calendar;S.browser_fallback_url=" +
+        encodeURIComponent(url) +
+        ";end";
+      return;
     }
-    downloadIcs();
-    return "ics";
+
+    window.location.href = url;
   }
 
-  function downloadIcs() {
-    var ics = [
+  function buildIcsString() {
+    return [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
       "PRODID:-//Arjun and Sandra//Wedding Invitation//EN",
@@ -867,20 +907,38 @@
       "DTSTAMP:" +
         new Date().toISOString().replace(/[-:]/g, "").split(".")[0] +
         "Z",
-      "DTSTART:" + WEDDING.startUTC,
-      "DTEND:" + WEDDING.endUTC,
+      "DTSTART;TZID=Asia/Kolkata:" + WEDDING.startLocal,
+      "DTEND;TZID=Asia/Kolkata:" + WEDDING.endLocal,
       "SUMMARY:" + WEDDING.title,
-      "DESCRIPTION:Together with our families\\, we joyfully invite you to celebrate the beginning of our forever.",
+      "DESCRIPTION:" + WEDDING.description.replace(/,/g, "\\,"),
       "LOCATION:" + WEDDING.venue.replace(/,/g, "\\,"),
       "STATUS:CONFIRMED",
       "BEGIN:VALARM",
       "TRIGGER:-P1D",
       "ACTION:DISPLAY",
-      "DESCRIPTION:Arjun & Sandra are getting married tomorrow!",
+      "DESCRIPTION:Arjun & Sandra wedding is tomorrow!",
+      "END:VALARM",
+      "BEGIN:VALARM",
+      "TRIGGER:-PT2H",
+      "ACTION:DISPLAY",
+      "DESCRIPTION:Arjun & Sandra wedding starts in 2 hours!",
       "END:VALARM",
       "END:VEVENT",
       "END:VCALENDAR",
     ].join("\r\n");
+  }
+
+  function addToCalendar() {
+    if (isMobileView()) {
+      openGoogleCalendarApp();
+      return "google";
+    }
+    downloadIcs();
+    return "ics";
+  }
+
+  function downloadIcs() {
+    var ics = buildIcsString();
 
     var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
     var link = document.createElement("a");
@@ -934,11 +992,7 @@
     if (cal) {
       cal.addEventListener("click", function () {
         var mode = addToCalendar();
-        announce(
-          mode === "google"
-            ? "Opening Google Calendar ❤"
-            : "Calendar invite downloaded ❤",
-        );
+        announce(calendarFeedback(mode));
       });
     }
 
