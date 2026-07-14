@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 260" fill="none" role="img" aria-label="Nilavilakku, the traditional Kerala lamp">
+  <defs>
+    <linearGradient id="nv-b" x1="20" y1="60" x2="120" y2="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E6C55E"/>
+      <stop offset=".5" stop-color="#C79A34"/>
+      <stop offset="1" stop-color="#8F6B22"/>
+    </linearGradient>
+    <radialGradient id="nv-f" cx=".5" cy=".7" r=".6">
+      <stop offset="0" stop-color="#FFF6D8"/>
+      <stop offset=".45" stop-color="#FFC85C"/>
+      <stop offset="1" stop-color="#F08A2A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nv-glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#FFD98A" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#FFD98A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- halo -->
+  <circle cx="70" cy="42" r="42" fill="url(#nv-glow)"/>
+  <!-- flame -->
+  <path d="M70 8c9 14 15 22 15 32 0 11-7 18-15 18s-15-7-15-18c0-10 6-18 15-32Z" fill="url(#nv-f)"/>
+  <path d="M70 26c4 7 7 11 7 16 0 6-3 10-7 10s-7-4-7-10c0-5 3-9 7-16Z" fill="#FFF8E2" opacity=".9"/>
+  <!-- wick tray with 5 spouts -->
+  <path d="M22 82h96l-10 14H32L22 82Z" fill="url(#nv-b)"/>
+  <path d="M14 74c6-6 20-10 56-10s50 4 56 10c-6 6-24 10-56 10s-50-4-56-10Z" fill="url(#nv-b)"/>
+  <g fill="#B98C2E">
+    <path d="M8 72 24 66l-2 10-14-4ZM132 72 116 66l2 10 14-4Z"/>
+  </g>
+  <!-- stem -->
+  <path d="M62 96h16v18H62zM58 114h24v10H58zM64 124h12v42H64z" fill="url(#nv-b)"/>
+  <ellipse cx="70" cy="140" rx="16" ry="7" fill="url(#nv-b)"/>
+  <ellipse cx="70" cy="158" rx="13" ry="6" fill="url(#nv-b)"/>
+  <path d="M64 166h12v22H64z" fill="url(#nv-b)"/>
+  <ellipse cx="70" cy="188" rx="19" ry="8" fill="url(#nv-b)"/>
+  <!-- base -->
+  <path d="M70 194c-26 0-46 12-52 26 0 6 24 10 52 10s52-4 52-10c-6-14-26-26-52-26Z" fill="url(#nv-b)"/>
+  <ellipse cx="70" cy="220" rx="52" ry="10" fill="#E6C55E" opacity=".55"/>
+  <g stroke="#8F6B22" stroke-width="1" opacity=".45">
+    <path d="M30 214h80M40 204h60"/>
+  </g>
+</svg>

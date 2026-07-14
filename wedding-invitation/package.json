@@ -1,0 +1,15 @@
+{
+  "name": "wedding-invitation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Arjun & Sandra — a Kerala Hindu wedding invitation. Static site, no backend.",
+  "scripts": {
+    "build": "tailwindcss -i ./css/tailwind.src.css -o ./css/tailwind.css --minify",
+    "dev": "tailwindcss -i ./css/tailwind.src.css -o ./css/tailwind.css --watch",
+    "serve": "npx --yes serve ."
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.14",
+    "tailwindcss": "^4.1.14"
+  }
+}

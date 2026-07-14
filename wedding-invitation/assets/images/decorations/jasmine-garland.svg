@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 380" fill="none" role="img" aria-label="Hanging jasmine garland">
+  <defs>
+    <radialGradient id="jg-bud" cx=".38" cy=".32" r=".75">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset=".6" stop-color="#FBF7EC"/>
+      <stop offset="1" stop-color="#E6DCC6"/>
+    </radialGradient>
+    <linearGradient id="jg-lotus" x1="30" y1="330" x2="30" y2="378" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F2A6C0"/>
+      <stop offset="1" stop-color="#D4638E"/>
+    </linearGradient>
+  </defs>
+  <!-- thread -->
+  <path d="M30 0v330" stroke="#C9BE9C" stroke-width="1"/>
+  <!-- jasmine buds, staggered down the thread.
+       The hairline keeps white-on-ivory buds legible against the paper. -->
+  <g stroke="#DFD4B8" stroke-width=".7">
+    <ellipse cx="22" cy="26" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="38" cy="44" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="22" cy="62" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="38" cy="80" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="22" cy="98" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="38" cy="116" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="22" cy="134" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="38" cy="152" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="22" cy="170" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="38" cy="188" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="22" cy="206" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="38" cy="224" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="22" cy="242" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="38" cy="260" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="22" cy="278" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="38" cy="296" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+    <ellipse cx="30" cy="314" rx="7.5" ry="6" fill="url(#jg-bud)"/>
+  </g>
+  <!-- small green leaves -->
+  <g fill="#4E6E3D" opacity=".85">
+    <path d="M30 70c-9 2-14 8-14 8s7 4 13 1 8-9 1-9Z"/>
+    <path d="M30 142c9 2 14 8 14 8s-7 4-13 1-8-9-1-9Z"/>
+    <path d="M30 214c-9 2-14 8-14 8s7 4 13 1 8-9 1-9Z"/>
+    <path d="M30 286c9 2 14 8 14 8s-7 4-13 1-8-9-1-9Z"/>
+  </g>
+  <!-- lotus bud terminal -->
+  <g>
+    <path d="M30 332c8 6 13 16 13 26 0 11-6 19-13 22-7-3-13-11-13-22 0-10 5-20 13-26Z" fill="url(#jg-lotus)"/>
+    <path d="M30 336v42" stroke="#B94E77" stroke-width="1" opacity=".45"/>
+  </g>
+</svg>

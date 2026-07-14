@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 420" fill="none" role="img" aria-label="Banana leaf">
+  <defs>
+    <linearGradient id="bl-a" x1="30" y1="20" x2="190" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6E8F55"/>
+      <stop offset=".45" stop-color="#4E6E3D"/>
+      <stop offset="1" stop-color="#3A5530"/>
+    </linearGradient>
+    <linearGradient id="bl-b" x1="110" y1="0" x2="110" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#89A96C"/>
+      <stop offset="1" stop-color="#4E6E3D"/>
+    </linearGradient>
+  </defs>
+  <!-- blade -->
+  <path d="M110 6c58 52 92 128 92 206 0 76-34 154-92 202-58-48-92-126-92-202C18 134 52 58 110 6Z" fill="url(#bl-a)"/>
+  <!-- highlight half -->
+  <path d="M110 6c58 52 92 128 92 206 0 76-34 154-92 202V6Z" fill="url(#bl-b)" opacity=".35"/>
+  <!-- midrib -->
+  <path d="M110 10v400" stroke="#E7DFC4" stroke-width="3.5" stroke-linecap="round" opacity=".75"/>
+  <!-- veins -->
+  <g stroke="#DCD3B4" stroke-width="1.5" stroke-linecap="round" opacity=".5">
+    <path d="M110 52 44 96M110 96 30 148M110 142 24 202M110 190 26 258M110 240 34 312M110 292 52 358M110 344 78 392"/>
+    <path d="M110 52 176 96M110 96 190 148M110 142 196 202M110 190 194 258M110 240 186 312M110 292 168 358M110 344 142 392"/>
+  </g>
+  <!-- torn edge notches, characteristic of a banana leaf -->
+  <g fill="#FAF6EE" opacity=".9">
+    <path d="M24 176 44 196 22 210Z"/>
+    <path d="M28 268 50 286 26 300Z"/>
+    <path d="M196 176 176 196 198 210Z"/>
+    <path d="M190 272 168 290 192 304Z"/>
+  </g>
+</svg>

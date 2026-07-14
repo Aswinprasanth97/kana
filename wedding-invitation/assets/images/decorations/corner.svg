@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" role="img" aria-label="Corner flourish">
+  <g stroke="#D4AF37" stroke-width="1.2" fill="none" stroke-linecap="round">
+    <!-- the two rules that meet at the corner -->
+    <path d="M6 6h44M6 6v44" opacity=".9"/>
+    <path d="M12 12h26M12 12v26" opacity=".5"/>
+    <!-- the vine sweeping away from the corner -->
+    <path d="M6 50c0 24 14 40 38 44"/>
+    <path d="M50 6c24 0 40 14 44 38"/>
+    <!-- paisley curl at the elbow -->
+    <path d="M24 24c14-4 26 4 26 16 0 7-5 12-11 12-5 0-9-4-9-9 0-4 3-7 7-7 3 0 5 2 5 5"/>
+  </g>
+  <!-- leaves along the vines -->
+  <g fill="#D4AF37" opacity=".55">
+    <path d="M14 62c7-2 12 2 12 8-7 2-12-2-12-8Z"/>
+    <path d="M22 82c7-2 12 2 12 8-7 2-12-2-12-8Z"/>
+    <path d="M62 14c-2 7 2 12 8 12 2-7-2-12-8-12Z"/>
+    <path d="M82 22c-2 7 2 12 8 12 2-7-2-12-8-12Z"/>
+  </g>
+  <g fill="#D4AF37">
+    <circle cx="6" cy="6" r="2.4"/>
+    <circle cx="50" cy="50" r="1.8" opacity=".7"/>
+  </g>
+</svg>

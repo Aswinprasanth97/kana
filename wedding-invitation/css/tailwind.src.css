@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Tailwind scans these for the utilities actually used, so the built file stays tiny. */
+@source "../index.html";
+@source "../js/script.js";
+
+@theme {
+  /* ── Kerala wedding palette ───────────────────────────── */
+  --color-ivory:   #FAF6EE;
+  --color-cream:   #FFF9F2;
+  --color-primary: #A8743B;
+  --color-gold:    #D4AF37;
+  --color-brown:   #4D3A2F;
+  --color-leaf:    #4E6E3D;
+  --color-ink:     #2C2C2C;
+
+  /* ── Typography ───────────────────────────────────────── */
+  --font-title:   "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-display: "Cinzel", Georgia, serif;
+  --font-script:  "Great Vibes", "Segoe Script", cursive;
+  --font-body:    "Lato", system-ui, -apple-system, "Segoe UI", sans-serif;
+}

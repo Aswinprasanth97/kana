@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" fill="none" role="img" aria-label="Coconut palm">
+  <defs>
+    <linearGradient id="cp-l" x1="100" y1="20" x2="100" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C9C5E"/>
+      <stop offset="1" stop-color="#4E6E3D"/>
+    </linearGradient>
+    <linearGradient id="cp-t" x1="90" y1="110" x2="120" y2="215" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A8743B"/>
+      <stop offset="1" stop-color="#6E4A26"/>
+    </linearGradient>
+  </defs>
+  <!-- trunk -->
+  <path d="M96 108c2 40 6 74 14 108h14c-12-34-18-70-18-108h-10Z" fill="url(#cp-t)"/>
+  <g stroke="#4D3A2F" stroke-width="1" opacity=".3">
+    <path d="M99 130h13M100 148h14M102 166h14M104 184h15M106 200h15"/>
+  </g>
+  <!-- fronds: each is a spine with barbs -->
+  <g stroke="url(#cp-l)" stroke-linecap="round" fill="none">
+    <g stroke-width="3">
+      <path d="M100 106C74 96 42 82 20 56"/>
+      <path d="M100 106c26-10 58-24 80-50"/>
+      <path d="M100 106C82 86 66 56 62 20"/>
+      <path d="M100 106c18-20 34-50 38-86"/>
+      <path d="M100 106C72 108 40 116 14 132"/>
+      <path d="M100 106c28 2 60 10 86 26"/>
+    </g>
+    <g stroke-width="1.4" opacity=".85">
+      <path d="M84 100 74 84M70 94 60 78M56 88 46 72M42 80 34 64M116 100l10-16M130 94l10-16M144 88l10-16M158 80l8-16M92 92 84 74M88 76 82 58M80 60 76 44M110 92l8-18M116 74l6-18M124 58l4-14M86 108 72 118M72 112 58 122M58 116 44 126M114 108l14 10M128 112l14 10M142 116l14 10"/>
+    </g>
+  </g>
+  <!-- coconuts -->
+  <g fill="#7A5A2E">
+    <circle cx="94" cy="116" r="7"/>
+    <circle cx="108" cy="118" r="6"/>
+    <circle cx="101" cy="126" r="6"/>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" fill="none" role="img" aria-label="Temple bell">
+  <defs>
+    <linearGradient id="tb-g" x1="20" y1="40" x2="100" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E6C55E"/>
+      <stop offset=".55" stop-color="#C79A34"/>
+      <stop offset="1" stop-color="#8F6B22"/>
+    </linearGradient>
+  </defs>
+  <!-- hanging chain -->
+  <path d="M60 0v22" stroke="#B98C2E" stroke-width="3"/>
+  <circle cx="60" cy="28" r="8" stroke="#C79A34" stroke-width="4" fill="none"/>
+  <!-- crown -->
+  <path d="M52 36h16v12H52z" fill="url(#tb-g)"/>
+  <!-- body -->
+  <path d="M60 48c-24 0-34 34-38 66-2 12-6 18-10 22h96c-4-4-8-10-10-22-4-32-14-66-38-66Z" fill="url(#tb-g)"/>
+  <!-- rim -->
+  <rect x="8" y="136" width="104" height="14" rx="7" fill="#E6C55E"/>
+  <rect x="8" y="136" width="104" height="14" rx="7" fill="#8F6B22" opacity=".18"/>
+  <!-- incised bands -->
+  <g stroke="#8F6B22" stroke-width="1.5" opacity=".5">
+    <path d="M26 112h68M22 124h76"/>
+  </g>
+  <!-- clapper -->
+  <path d="M60 150v22" stroke="#B98C2E" stroke-width="3"/>
+  <circle cx="60" cy="182" r="12" fill="url(#tb-g)"/>
+</svg>
