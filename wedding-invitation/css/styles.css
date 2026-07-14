@@ -1061,7 +1061,7 @@ body {
   margin-top: 2.25rem;
   padding-top: 1.5rem;
   border-top: 1px solid rgb(212 175 55 / .28);
-  display: inline-flex; align-items: center; gap: .4rem;
+  display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: .35rem .4rem;
   font-family: var(--font-title, "Cormorant Garamond", serif);
   font-style: italic;
   font-size: 1rem;
@@ -1071,7 +1071,11 @@ body {
 .footer-heart {
   color: var(--primary);
   font-style: normal;
-  animation: heartbeat 3.6s ease-in-out infinite;  /* the same beat as the hero */
+  animation: heartbeat 3.6s ease-in-out infinite;
+}
+.footer-aside {
+  font-size: .92em;
+  color: rgb(77 58 47 / .55);
 }
 
 /* ── Floating buttons ───────────────────────────────────────── */
