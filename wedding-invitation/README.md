@@ -159,9 +159,25 @@ Hero → Our Story → **The Invitation** → Countdown → Venue → RSVP → S
 
 ## Deploy
 
-Any static host. Push the folder and point the host at it — no build command
-and no output directory needed:
+### GitHub Pages (recommended)
 
-- **GitHub Pages** — Settings → Pages → deploy from branch, `/` root.
-- **Netlify / Vercel** — drag the folder in, or connect the repo. Leave the
-  build command empty; publish directory is the project root.
+The repo includes a GitHub Actions workflow (`.github/workflows/deploy-pages.yml`)
+that publishes the `wedding-invitation/` folder to:
+
+**https://aswinprasanth97.github.io/kana/**
+
+One-time setup in GitHub:
+
+1. Open **Settings → Pages**
+2. Under **Build and deployment → Source**, choose **GitHub Actions**
+3. Push to `main` — the workflow runs automatically on every push
+
+After the first successful run, the site is live at the URL above.
+
+### Other hosts
+
+Any static host works too — push the `wedding-invitation/` folder (not the repo
+root). No build command needed; publish directory is `wedding-invitation/`.
+
+- **Netlify / Vercel** — connect the repo and set the publish directory to
+  `wedding-invitation`.
