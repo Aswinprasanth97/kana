@@ -1440,12 +1440,17 @@
     var shower = $("#petal-shower");
     if (!shower) return;
 
-    // motion nobody asked for if they've turned motion down, and pointless
-    // where there's no accelerometer
+    // no flourish at all if they've asked for reduced motion
     if (REDUCED) return;
+
+    // shake detection needs an accelerometer, but the hint + tap-to-shower work
+    // everywhere — so we don't bail when the API is missing (e.g. desktop)
     var hasMotion =
       "DeviceMotionEvent" in window || "ondevicemotion" in window;
-    if (!hasMotion) return;
+    var isTouch =
+      (navigator.maxTouchPoints || 0) > 0 ||
+      "ontouchstart" in window ||
+      window.matchMedia("(pointer: coarse)").matches;
 
     var listening = false;
     var lastBurst = 0;
@@ -1521,39 +1526,54 @@
     }
 
     function attach() {
-      if (listening) return;
+      if (!hasMotion || listening) return;
       listening = true;
       window.addEventListener("devicemotion", onMotion, { passive: true });
-      showHint();
     }
 
-    /* ── the "shake me" hint ── */
+    /* ── the "shake me" hint ────────────────────────────────────
+       Shows on every device (once per browser session). On a phone the label
+       says "shake"; on a desktop it says "tap", and tapping it always triggers
+       a shower — so the flourish is discoverable and testable everywhere, not
+       only where an accelerometer exists. */
     var hint = $("#shake-hint");
+    var hintLabel = hint ? hint.querySelector("[data-hint-label]") : null;
     var hintTimer = null;
+    var hintShown = false;
     var HINT_KEY = "arjun-sandra-shake-hint";
-    // only worth showing on an actual touch device with an accelerometer
-    var isTouch = window.matchMedia("(pointer: coarse)").matches;
 
     function showHint() {
-      if (!hint || !isTouch) return;
-      // show it once per guest, not every visit
+      if (!hint || hintShown) return;
+      hintShown = true;
+
+      // once per session — reloading in a new tab shows it again, but it won't
+      // nag on every open of the same session
       try {
-        if (localStorage.getItem(HINT_KEY) === "seen") return;
+        if (sessionStorage.getItem(HINT_KEY) === "seen") return;
       } catch (e) {
         /* private mode — just show it */
+      }
+
+      // phones shake; everything else taps
+      if (hintLabel) {
+        hintLabel.textContent = isTouch
+          ? "Shake for a flower shower"
+          : "Tap here for a flower shower";
       }
 
       hint.hidden = false;
       requestAnimationFrame(function () {
         hint.classList.add("is-on");
       });
-      // let the guest tap it away, and auto-hide after a while
+
+      // tapping the hint IS a way to see it — shower, then tuck it away
       hint.addEventListener("click", function () {
-        dismissHint(true);
+        shed();
       });
+
       hintTimer = setTimeout(function () {
-        dismissHint(false);
-      }, 7000);
+        dismissHint(true);
+      }, 8000);
     }
 
     function dismissHint(remember) {
@@ -1561,7 +1581,7 @@
       clearTimeout(hintTimer);
       if (remember) {
         try {
-          localStorage.setItem(HINT_KEY, "seen");
+          sessionStorage.setItem(HINT_KEY, "seen");
         } catch (e) {
           /* ignore */
         }
@@ -1577,7 +1597,9 @@
     }
 
     // Called from the entrance tap (a user gesture). On iOS this is the only
-    // moment we can ask for motion access.
+    // moment we can ask for motion access. We show the hint here — on every
+    // device — so it no longer depends on the accelerometer being present or
+    // permission being granted.
     enableShakeFromGesture = function () {
       if (
         typeof DeviceMotionEvent !== "undefined" &&
@@ -1588,21 +1610,24 @@
             if (state === "granted") attach();
           })
           .catch(function () {
-            /* denied or dismissed — no shake, no harm */
+            /* denied or dismissed — the tap-the-hint fallback still works */
           });
       } else {
-        // Android / older iOS: no permission prompt, just listen
+        // Android / desktop / older iOS: no permission prompt, just listen
         attach();
       }
+      // a moment after the invitation opens, invite them to try it
+      setTimeout(showHint, 900);
     };
 
-    // Fallback: if the entrance was removed, arm on the first touch (also a
-    // gesture, so iOS permission still works).
-    var armOnTouch = function () {
-      document.removeEventListener("touchend", armOnTouch);
-      if (!listening && enableShakeFromGesture) enableShakeFromGesture();
+    // Fallback: if the entrance was removed, arm on the first interaction.
+    var armOnFirst = function () {
+      document.removeEventListener("touchend", armOnFirst, true);
+      document.removeEventListener("pointerdown", armOnFirst, true);
+      if (enableShakeFromGesture) enableShakeFromGesture();
     };
-    document.addEventListener("touchend", armOnTouch, { once: true });
+    document.addEventListener("touchend", armOnFirst, { capture: true, once: true });
+    document.addEventListener("pointerdown", armOnFirst, { capture: true, once: true });
   }
 
   /* ─────────────────────────────────────────────────────────────
