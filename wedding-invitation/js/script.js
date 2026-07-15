@@ -1427,9 +1427,13 @@
      so we ask when the invitation is opened. Needs a secure context (https) on
      the deployed site; on http/file it simply stays dormant.
      ───────────────────────────────────────────────────────────── */
-  var PETALS = [
-    "assets/images/decorations/petal.svg",
-    "assets/images/decorations/petal-lotus.svg",
+  // flowers rained down on a shake — jasmine, marigold and rose
+  var SHOWER_FLOWERS = [
+    "assets/images/decorations/flower-jasmine.svg",
+    "assets/images/decorations/flower-marigold.svg",
+    "assets/images/decorations/flower-rose.svg",
+    "assets/images/decorations/flower-jasmine.svg",
+    "assets/images/decorations/flower-marigold.svg",
   ];
 
   function initShakePetals() {
@@ -1473,24 +1477,29 @@
       have = true;
     }
 
-    // one shower of petals
+    // one shower of flowers
     function shed() {
-      var count = 16 + Math.floor(Math.random() * 8); // 16–23
+      // hide the "shake me" hint the first time it actually happens
+      dismissHint(true);
+
+      var count = 14 + Math.floor(Math.random() * 8); // 14–21
       var frag = document.createDocumentFragment();
 
       for (var i = 0; i < count; i++) {
         var span = document.createElement("span");
-        span.className = "shower-petal";
+        span.className = "shower-flower";
 
         var dur = 3.4 + Math.random() * 2.6; // 3.4–6s to reach the bottom
         var delay = Math.random() * 0.5;
         span.style.setProperty("--x", (Math.random() * 100).toFixed(2) + "%");
         span.style.setProperty("--s", dur.toFixed(2) + "s");
         span.style.setProperty("--d", delay.toFixed(2) + "s");
-        span.style.setProperty("--sc", (0.5 + Math.random() * 0.7).toFixed(2));
+        span.style.setProperty("--sc", (0.55 + Math.random() * 0.7).toFixed(2));
+        // each flower tumbles a different way as it falls
+        span.style.setProperty("--spin", (Math.random() < 0.5 ? -1 : 1) * (200 + Math.random() * 220) + "deg");
 
         var img = document.createElement("img");
-        img.src = PETALS[Math.floor(Math.random() * PETALS.length)];
+        img.src = SHOWER_FLOWERS[Math.floor(Math.random() * SHOWER_FLOWERS.length)];
         img.alt = "";
         span.appendChild(img);
 
@@ -1515,6 +1524,56 @@
       if (listening) return;
       listening = true;
       window.addEventListener("devicemotion", onMotion, { passive: true });
+      showHint();
+    }
+
+    /* ── the "shake me" hint ── */
+    var hint = $("#shake-hint");
+    var hintTimer = null;
+    var HINT_KEY = "arjun-sandra-shake-hint";
+    // only worth showing on an actual touch device with an accelerometer
+    var isTouch = window.matchMedia("(pointer: coarse)").matches;
+
+    function showHint() {
+      if (!hint || !isTouch) return;
+      // show it once per guest, not every visit
+      try {
+        if (localStorage.getItem(HINT_KEY) === "seen") return;
+      } catch (e) {
+        /* private mode — just show it */
+      }
+
+      hint.hidden = false;
+      requestAnimationFrame(function () {
+        hint.classList.add("is-on");
+      });
+      // let the guest tap it away, and auto-hide after a while
+      hint.addEventListener("click", function () {
+        dismissHint(true);
+      });
+      hintTimer = setTimeout(function () {
+        dismissHint(false);
+      }, 7000);
+    }
+
+    function dismissHint(remember) {
+      if (!hint) return;
+      clearTimeout(hintTimer);
+      if (remember) {
+        try {
+          localStorage.setItem(HINT_KEY, "seen");
+        } catch (e) {
+          /* ignore */
+        }
+      }
+      if (hint.hidden || !hint.classList.contains("is-on")) {
+        hint.hidden = true;
+        return;
+      }
+      hint.classList.remove("is-on");
+      setTimeout(function () {
+        hint.hidden = true;
+      }, 450);
     }
 
     // Called from the entrance tap (a user gesture). On iOS this is the only

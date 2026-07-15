@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-label="Rose">
+  <defs>
+    <radialGradient id="rz-o" cx=".5" cy=".5" r=".62">
+      <stop offset="0" stop-color="#EFA9C3"/>
+      <stop offset="1" stop-color="#D9739A"/>
+    </radialGradient>
+    <radialGradient id="rz-i" cx=".5" cy=".45" r=".6">
+      <stop offset="0" stop-color="#F7CADB"/>
+      <stop offset="1" stop-color="#E48BAE"/>
+    </radialGradient>
+  </defs>
+  <!-- outer petals -->
+  <g fill="url(#rz-o)">
+    <ellipse cx="24" cy="10" rx="6.2" ry="8.2"/>
+    <ellipse cx="24" cy="10" rx="6.2" ry="8.2" transform="rotate(72 24 24)"/>
+    <ellipse cx="24" cy="10" rx="6.2" ry="8.2" transform="rotate(144 24 24)"/>
+    <ellipse cx="24" cy="10" rx="6.2" ry="8.2" transform="rotate(216 24 24)"/>
+    <ellipse cx="24" cy="10" rx="6.2" ry="8.2" transform="rotate(288 24 24)"/>
+  </g>
+  <!-- inner whorl -->
+  <g fill="url(#rz-i)">
+    <ellipse cx="24" cy="16" rx="4.4" ry="5.6" transform="rotate(36 24 24)"/>
+    <ellipse cx="24" cy="16" rx="4.4" ry="5.6" transform="rotate(108 24 24)"/>
+    <ellipse cx="24" cy="16" rx="4.4" ry="5.6" transform="rotate(180 24 24)"/>
+    <ellipse cx="24" cy="16" rx="4.4" ry="5.6" transform="rotate(252 24 24)"/>
+    <ellipse cx="24" cy="16" rx="4.4" ry="5.6" transform="rotate(324 24 24)"/>
+  </g>
+  <!-- coiled bud -->
+  <circle cx="24" cy="24" r="5" fill="#CE5F87"/>
+  <path d="M24 20c2.6 0 4 1.8 4 4s-1.6 4-4 4-4-1.8-4-4c0-1.6 1.2-2.6 2.6-2.6"
+        fill="none" stroke="#F2BFD3" stroke-width="1.1" stroke-linecap="round"/>
+</svg>

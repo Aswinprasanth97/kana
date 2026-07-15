@@ -111,20 +111,33 @@
   </div>
 
   <div class="bg-petals" aria-hidden="true">
-    <span class="petal" style="--x:5%;  --d:-2s;  --s:26s; --sc:.75"><img src="assets/images/decorations/petal.svg" alt=""></span>
-    <span class="petal" style="--x:16%; --d:-11s; --s:32s; --sc:.55"><img src="assets/images/decorations/petal-lotus.svg" alt=""></span>
-    <span class="petal" style="--x:27%; --d:-19s; --s:23s; --sc:.9"><img src="assets/images/decorations/petal.svg" alt=""></span>
-    <span class="petal" style="--x:38%; --d:-5s;  --s:35s; --sc:.6"><img src="assets/images/decorations/petal.svg" alt=""></span>
-    <span class="petal" style="--x:49%; --d:-24s; --s:29s; --sc:.8"><img src="assets/images/decorations/petal-lotus.svg" alt=""></span>
-    <span class="petal" style="--x:60%; --d:-8s;  --s:24s; --sc:.65"><img src="assets/images/decorations/petal.svg" alt=""></span>
-    <span class="petal" style="--x:71%; --d:-16s; --s:33s; --sc:.85"><img src="assets/images/decorations/petal.svg" alt=""></span>
-    <span class="petal" style="--x:82%; --d:-30s; --s:27s; --sc:.5"><img src="assets/images/decorations/petal-lotus.svg" alt=""></span>
-    <span class="petal" style="--x:91%; --d:-13s; --s:31s; --sc:.75"><img src="assets/images/decorations/petal.svg" alt=""></span>
+    <span class="petal" style="--x:5%;  --d:-2s;  --s:26s; --sc:.75"><img src="assets/images/decorations/flower-jasmine.svg" alt=""></span>
+    <span class="petal" style="--x:16%; --d:-11s; --s:32s; --sc:.55"><img src="assets/images/decorations/flower-rose.svg" alt=""></span>
+    <span class="petal" style="--x:27%; --d:-19s; --s:23s; --sc:.9"><img src="assets/images/decorations/flower-jasmine.svg" alt=""></span>
+    <span class="petal" style="--x:38%; --d:-5s;  --s:35s; --sc:.6"><img src="assets/images/decorations/flower-jasmine.svg" alt=""></span>
+    <span class="petal" style="--x:49%; --d:-24s; --s:29s; --sc:.8"><img src="assets/images/decorations/flower-rose.svg" alt=""></span>
+    <span class="petal" style="--x:60%; --d:-8s;  --s:24s; --sc:.65"><img src="assets/images/decorations/flower-jasmine.svg" alt=""></span>
+    <span class="petal" style="--x:71%; --d:-16s; --s:33s; --sc:.85"><img src="assets/images/decorations/flower-jasmine.svg" alt=""></span>
+    <span class="petal" style="--x:82%; --d:-30s; --s:27s; --sc:.5"><img src="assets/images/decorations/flower-rose.svg" alt=""></span>
+    <span class="petal" style="--x:91%; --d:-13s; --s:31s; --sc:.75"><img src="assets/images/decorations/flower-jasmine.svg" alt=""></span>
   </div>
 
-  <!-- Shake your phone → a shower of petals falls from the top. JS fills this
-       with petals on a shake and removes them once they land. -->
+  <!-- Shake your phone → a shower of flowers falls from the top. JS fills this
+       with flowers on a shake and removes them once they land. -->
   <div class="petal-shower" id="petal-shower" aria-hidden="true"></div>
+
+  <!-- One-time nudge on touch devices; JS shows it once motion is unlocked. -->
+  <button type="button" id="shake-hint" class="shake-hint" hidden>
+    <span class="shake-hint-phone" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="7" y="2.5" width="10" height="19" rx="2.2" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M11 5.5h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M3.5 8.5 2 12l1.5 3.5M20.5 8.5 22 12l-1.5 3.5" stroke="currentColor"
+              stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    Shake for a flower shower
+  </button>
 
   <!-- ══════════════════ NAV ══════════════════ -->
   <header id="nav" class="site-nav" data-nav>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-label="Jasmine flower">
+  <defs>
+    <radialGradient id="jf-p" cx=".5" cy=".38" r=".7">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset=".7" stop-color="#FBF3E2"/>
+      <stop offset="1" stop-color="#EEDFC1"/>
+    </radialGradient>
+  </defs>
+  <g fill="url(#jf-p)" stroke="#D9C48A" stroke-width=".7">
+    <ellipse cx="24" cy="12.5" rx="6.6" ry="11"/>
+    <ellipse cx="24" cy="12.5" rx="6.6" ry="11" transform="rotate(72 24 24)"/>
+    <ellipse cx="24" cy="12.5" rx="6.6" ry="11" transform="rotate(144 24 24)"/>
+    <ellipse cx="24" cy="12.5" rx="6.6" ry="11" transform="rotate(216 24 24)"/>
+    <ellipse cx="24" cy="12.5" rx="6.6" ry="11" transform="rotate(288 24 24)"/>
+  </g>
+  <circle cx="24" cy="24" r="4.4" fill="#E7B84A"/>
+  <circle cx="24" cy="24" r="2" fill="#C98F2E"/>
+</svg>

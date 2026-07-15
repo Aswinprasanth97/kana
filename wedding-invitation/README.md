@@ -122,9 +122,10 @@ nothing to load. The paper texture is a seamless 11 KB tile.
   `IntersectionObserver` in `js/script.js` that honours the same `data-aos` /
   `data-aos-delay` attributes — one less network request, and nothing to break.
 - **Zero runtime dependencies.** No CDN scripts at all.
-- **Shake to shower petals (mobile).** Shaking the phone rains a burst of
-  jasmine and lotus petals from the top. It uses the accelerometer
-  (`DeviceMotionEvent`), so note:
+- **Shake to shower flowers (mobile).** Shaking the phone rains a burst of
+  tumbling jasmine, marigold and rose flowers from the top, and a one-time
+  "Shake for a flower shower" hint nudges guests to try it. It uses the
+  accelerometer (`DeviceMotionEvent`), so note:
   - It only works over **HTTPS** — GitHub Pages / Netlify / Vercel are all
     fine, but it stays dormant when you open the file locally or over plain
     `http`.
