@@ -154,6 +154,43 @@ body {
   .bloom { filter: blur(48px); }
 }
 
+/* ── Shake shower ───────────────────────────────────────────────
+   A burst of petals rained down when the phone is shaken. Unlike the ambient
+   layer this sits IN FRONT of the content (a deliberate flourish) and each
+   petal falls once, then JS removes it. pointer-events:none so it never
+   blocks a tap. */
+.petal-shower {
+  position: fixed;
+  inset: 0;
+  z-index: 100;                 /* above content + fabs, below the entrance (120) */
+  pointer-events: none;
+  overflow: hidden;
+}
+.petal-shower[hidden] { display: none; }
+
+.shower-petal {
+  position: absolute;
+  top: 0;
+  left: var(--x, 50%);
+  width: calc(24px * var(--sc, 1));
+  animation: petal-fall var(--s, 4s) cubic-bezier(.45, .05, .55, .95) var(--d, 0s) forwards;
+  will-change: transform;
+}
+.shower-petal img {
+  display: block;
+  width: 100%;
+  opacity: .92;
+  filter: drop-shadow(0 3px 5px rgb(77 58 47 / .22));
+  animation: petal-sway calc(var(--s, 4s) / 2.2) ease-in-out var(--d, 0s) infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .petal-shower { display: none !important; }
+}
+@media print {
+  .petal-shower { display: none !important; }
+}
+
 /* ── Shared section furniture ───────────────────────────────── */
 
 .section { position: relative; padding: 6rem 0; }
@@ -1078,6 +1115,128 @@ body {
   color: rgb(77 58 47 / .55);
 }
 
+/* ── Entrance overlay ───────────────────────────────────────── */
+
+body.is-gated { overflow: hidden; }
+
+.entrance {
+  position: fixed;
+  inset: 0;
+  z-index: 120;                     /* above everything, including the nav */
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  background:
+    radial-gradient(80% 60% at 50% 38%, rgb(255 255 255 / .7), transparent 70%),
+    var(--ivory);
+  background-image:
+    radial-gradient(80% 60% at 50% 38%, rgb(255 255 255 / .7), transparent 70%),
+    url("../assets/images/background.jpg");
+  background-size: auto, 320px 320px;
+  opacity: 1;
+  transition: opacity .8s ease, visibility .8s;
+}
+.entrance[hidden] { display: none; }
+.entrance.is-leaving { opacity: 0; visibility: hidden; }
+
+.entrance-card {
+  position: relative;
+  max-width: 30rem;
+  padding: clamp(2rem, 6vw, 3.5rem) clamp(1.25rem, 5vw, 2.75rem);
+  border: 1px solid rgb(212 175 55 / .55);
+  border-radius: 4px;
+  background: rgb(255 249 242 / .8);
+  box-shadow: var(--shadow-soft);
+  animation: entrance-in 1s cubic-bezier(.2,.7,.3,1) both;
+}
+.entrance-card::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgb(212 175 55 / .3);
+  border-radius: 2px;
+  pointer-events: none;
+}
+@keyframes entrance-in {
+  from { opacity: 0; transform: translateY(16px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.entrance-kolam {
+  width: clamp(56px, 12vw, 76px);
+  margin: 0 auto 1.25rem;
+  opacity: .85;
+  animation: spin-slow 60s linear infinite;
+}
+.entrance-eyebrow {
+  font-family: var(--font-script, "Great Vibes", cursive);
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  color: var(--primary);
+}
+.entrance-names {
+  margin-top: .35rem;
+  font-family: var(--font-display, "Cinzel", serif);
+  font-weight: 500;
+  font-size: clamp(1.9rem, 7vw, 3rem);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.entrance-divider { width: 12rem; margin: 1rem auto 0; opacity: .9; }
+.entrance-date {
+  margin-top: .85rem;
+  font-family: var(--font-title, "Cormorant Garamond", serif);
+  font-style: italic;
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: var(--brown);
+}
+.entrance-date sup { font-size: .6em; }
+
+.entrance-open {
+  margin-top: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .9rem 2rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, var(--primary), #96652F);
+  color: var(--cream);
+  font-family: var(--font-body, "Lato", sans-serif);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: transform .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s ease;
+  animation: pulse-soft 2.8s ease-in-out 1s infinite;
+}
+.entrance-open:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+.entrance-open-icon { display: inline-flex; width: 1.15rem; height: 1.15rem; }
+.entrance-open-icon svg { width: 100%; height: 100%; }
+@keyframes pulse-soft {
+  0%, 100% { box-shadow: var(--shadow-soft), 0 0 0 0 rgb(212 175 55 / .5); }
+  50%      { box-shadow: var(--shadow-soft), 0 0 0 10px rgb(212 175 55 / 0); }
+}
+
+.entrance-hint {
+  margin-top: 1.35rem;
+  font-size: .72rem;
+  font-weight: 300;
+  letter-spacing: .1em;
+  color: rgb(77 58 47 / .6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entrance-card { animation: none; }
+  .entrance-kolam { animation: none; }
+  .entrance-open { animation: none; }
+  .entrance { transition-duration: .01ms; }
+}
+
 /* ── Floating buttons ───────────────────────────────────────── */
 
 .fab {
@@ -1252,6 +1411,10 @@ body {
 
 /* If JS never runs, nothing should stay invisible. */
 .no-js [data-aos] { opacity: 1; transform: none; }
+
+/* Only JS can dismiss the entrance, so hide it entirely without JS — otherwise
+   it would cover the invitation forever. */
+.no-js .entrance { display: none !important; }
 
 /* ── Motion & print ─────────────────────────────────────────── */
 

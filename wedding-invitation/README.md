@@ -122,6 +122,18 @@ nothing to load. The paper texture is a seamless 11 KB tile.
   `IntersectionObserver` in `js/script.js` that honours the same `data-aos` /
   `data-aos-delay` attributes — one less network request, and nothing to break.
 - **Zero runtime dependencies.** No CDN scripts at all.
+- **Shake to shower petals (mobile).** Shaking the phone rains a burst of
+  jasmine and lotus petals from the top. It uses the accelerometer
+  (`DeviceMotionEvent`), so note:
+  - It only works over **HTTPS** — GitHub Pages / Netlify / Vercel are all
+    fine, but it stays dormant when you open the file locally or over plain
+    `http`.
+  - On **iOS** it needs motion permission, which the browser only grants from a
+    tap. We ask for it when the guest taps **Open Invitation** — so the entrance
+    screen is what unlocks it. (Remove the entrance and iOS shake stops working
+    unless another tap requests permission first.)
+  - Off under `prefers-reduced-motion`, and dormant on devices with no
+    accelerometer (desktops).
 - Every animation is disabled under `prefers-reduced-motion`.
 - Images below the fold are `loading="lazy"`; the portrait is preloaded with
   `fetchpriority="high"`.
@@ -164,7 +176,7 @@ Hero → Our Story → **The Invitation** → Countdown → Venue → RSVP → S
 The repo includes a GitHub Actions workflow (`.github/workflows/deploy-pages.yml`)
 that publishes the `wedding-invitation/` folder to:
 
-**https://aswinprasanth97.github.io/kana/**
+**<https://aswinprasanth97.github.io/kana/>**
 
 One-time setup in GitHub:
 

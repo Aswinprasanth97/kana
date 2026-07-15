@@ -1014,6 +1014,15 @@
   var MUSIC_KEY = "arjun-sandra-music";
   var MUSIC_SRC = "assets/audio/wedding-song.mp3";
 
+  // Set by initMusic; called from the entrance overlay's click handler so the
+  // browser sees a real user gesture and allows sound. This is how music starts
+  // the instant the invitation is opened.
+  var startMusicFromGesture = null;
+
+  // Set by initShakePetals; called from a user gesture (the entrance tap) so we
+  // can ask iOS for motion permission, which is only grantable from a gesture.
+  var enableShakeFromGesture = null;
+
   function initMusic() {
     var btn = $("#fab-music");
     if (!btn) return;
@@ -1305,14 +1314,11 @@
        without them ever touching the button.
        ──────────────────────────────────────────────────────────── */
     var armed = false;
-    var GESTURES = [
-      "pointerdown",
-      "keydown",
-      "touchstart",
-      "wheel",
-      "scroll",
-      "mousemove",
-    ];
+    /* ONLY discrete gestures unlock audio. A scroll, wheel or mouse-move does
+       NOT count as user activation in any browser, so retrying play() on those
+       can never succeed — and the old code cleared the cue and disarmed on them
+       anyway, which is exactly why music never started. */
+    var GESTURES = ["pointerdown", "mousedown", "touchstart", "keydown", "click"];
 
     function armFirstGesture() {
       if (armed) return;
@@ -1321,22 +1327,31 @@
       // let the guest know music is waiting on them
       btn.classList.add("is-waiting");
 
-      var go = function () {
-        disarm();
-        btn.classList.remove("is-waiting");
-        start(function () {
-          setState(true);
-        });
-      };
       var disarm = function () {
         GESTURES.forEach(function (ev) {
           window.removeEventListener(ev, go, true);
         });
       };
 
+      var go = function () {
+        // Attempt to start, but only commit (clear cue, remove listeners) if it
+        // ACTUALLY plays. If this gesture didn't grant permission, stay armed
+        // for the next one instead of silently giving up.
+        start(
+          function () {
+            armed = true;
+            disarm();
+            btn.classList.remove("is-waiting");
+            setState(true);
+          },
+          function () {
+            /* still blocked — leave the listeners in place and try again on the
+               next gesture */
+          },
+        );
+      };
+
       GESTURES.forEach(function (ev) {
-        // capture + passive: fires on the guest's first move, without
-        // interfering with whatever they were actually doing
         window.addEventListener(ev, go, { capture: true, passive: true });
       });
     }
@@ -1384,6 +1399,209 @@
     });
     probe.load();
     setTimeout(decide, 1200); // no mp3 and no error event: fall through to the synth
+
+    /* The entrance overlay calls this from inside its click handler. A click is
+       a real user gesture, so this play() is always allowed — this is what makes
+       music begin the moment the invitation is opened. */
+    startMusicFromGesture = function () {
+      var wanted = null;
+      try {
+        wanted = localStorage.getItem(MUSIC_KEY);
+      } catch (e) {
+        wanted = null;
+      }
+      if (wanted === "off") return; // they turned it off before — respect that
+      if (playing) return;
+      btn.classList.remove("is-waiting");
+      start(function () {
+        setState(true);
+      });
+    };
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     10. Shake the phone → a shower of petals falls from the top
+
+     Uses the accelerometer (DeviceMotionEvent). On iOS 13+ motion access
+     needs explicit permission that can ONLY be requested from a user gesture,
+     so we ask when the invitation is opened. Needs a secure context (https) on
+     the deployed site; on http/file it simply stays dormant.
+     ───────────────────────────────────────────────────────────── */
+  var PETALS = [
+    "assets/images/decorations/petal.svg",
+    "assets/images/decorations/petal-lotus.svg",
+  ];
+
+  function initShakePetals() {
+    var shower = $("#petal-shower");
+    if (!shower) return;
+
+    // motion nobody asked for if they've turned motion down, and pointless
+    // where there's no accelerometer
+    if (REDUCED) return;
+    var hasMotion =
+      "DeviceMotionEvent" in window || "ondevicemotion" in window;
+    if (!hasMotion) return;
+
+    var listening = false;
+    var lastBurst = 0;
+    var have = false;
+    var px = 0,
+      py = 0,
+      pz = 0;
+
+    var SHAKE_DELTA = 26; // summed accel change that counts as a shake
+    var COOLDOWN = 1100; // ms between showers, so a long shake isn't a blizzard
+
+    function onMotion(e) {
+      var a =
+        e.accelerationIncludingGravity || e.acceleration || null;
+      if (!a || a.x == null) return;
+
+      if (have) {
+        var delta =
+          Math.abs(a.x - px) + Math.abs(a.y - py) + Math.abs(a.z - pz);
+        var now = Date.now();
+        if (delta > SHAKE_DELTA && now - lastBurst > COOLDOWN) {
+          lastBurst = now;
+          shed();
+        }
+      }
+      px = a.x;
+      py = a.y;
+      pz = a.z;
+      have = true;
+    }
+
+    // one shower of petals
+    function shed() {
+      var count = 16 + Math.floor(Math.random() * 8); // 16–23
+      var frag = document.createDocumentFragment();
+
+      for (var i = 0; i < count; i++) {
+        var span = document.createElement("span");
+        span.className = "shower-petal";
+
+        var dur = 3.4 + Math.random() * 2.6; // 3.4–6s to reach the bottom
+        var delay = Math.random() * 0.5;
+        span.style.setProperty("--x", (Math.random() * 100).toFixed(2) + "%");
+        span.style.setProperty("--s", dur.toFixed(2) + "s");
+        span.style.setProperty("--d", delay.toFixed(2) + "s");
+        span.style.setProperty("--sc", (0.5 + Math.random() * 0.7).toFixed(2));
+
+        var img = document.createElement("img");
+        img.src = PETALS[Math.floor(Math.random() * PETALS.length)];
+        img.alt = "";
+        span.appendChild(img);
+
+        // remove it once it has fallen — animationend, plus a safety timeout
+        (function (el, ttl) {
+          var kill = function () {
+            if (el.parentNode) el.parentNode.removeChild(el);
+          };
+          el.addEventListener("animationend", function (ev) {
+            if (ev.animationName === "petal-fall") kill();
+          });
+          setTimeout(kill, ttl);
+        })(span, (dur + delay + 0.6) * 1000);
+
+        frag.appendChild(span);
+      }
+
+      shower.appendChild(frag);
+    }
+
+    function attach() {
+      if (listening) return;
+      listening = true;
+      window.addEventListener("devicemotion", onMotion, { passive: true });
+    }
+
+    // Called from the entrance tap (a user gesture). On iOS this is the only
+    // moment we can ask for motion access.
+    enableShakeFromGesture = function () {
+      if (
+        typeof DeviceMotionEvent !== "undefined" &&
+        typeof DeviceMotionEvent.requestPermission === "function"
+      ) {
+        DeviceMotionEvent.requestPermission()
+          .then(function (state) {
+            if (state === "granted") attach();
+          })
+          .catch(function () {
+            /* denied or dismissed — no shake, no harm */
+          });
+      } else {
+        // Android / older iOS: no permission prompt, just listen
+        attach();
+      }
+    };
+
+    // Fallback: if the entrance was removed, arm on the first touch (also a
+    // gesture, so iOS permission still works).
+    var armOnTouch = function () {
+      document.removeEventListener("touchend", armOnTouch);
+      if (!listening && enableShakeFromGesture) enableShakeFromGesture();
+    };
+    document.addEventListener("touchend", armOnTouch, { once: true });
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     11. Entrance overlay — "tap to open"
+
+     A page cannot legally play sound on a cold load; the browser blocks it
+     until the guest interacts. So the invitation opens behind a single
+     "Open Invitation" screen. Tapping it is that first interaction — the
+     content reveals AND the music starts together, which is the effect of
+     music "playing when the page opens".
+     ───────────────────────────────────────────────────────────── */
+  function initEntrance() {
+    var overlay = $("#entrance");
+    if (!overlay) return;
+
+    var openBtn = $("#entrance-open", overlay);
+    var opened = false;
+
+    // don't let the page scroll behind the gate
+    document.body.classList.add("is-gated");
+
+    // move focus to the open button so keyboard/AT users land on it
+    if (openBtn) {
+      try {
+        openBtn.focus({ preventScroll: true });
+      } catch (e) {
+        openBtn.focus();
+      }
+    }
+
+    function open() {
+      if (opened) return;
+      opened = true;
+
+      // start music AND unlock motion from within this gesture — iOS grants
+      // both only in response to a user action, and this tap is it
+      if (startMusicFromGesture) startMusicFromGesture();
+      if (enableShakeFromGesture) enableShakeFromGesture();
+
+      overlay.classList.add("is-leaving");
+      document.body.classList.remove("is-gated");
+
+      var done = function () {
+        overlay.hidden = true;
+        overlay.removeEventListener("transitionend", done);
+      };
+      overlay.addEventListener("transitionend", done);
+      // fallback in case the transition doesn't fire (reduced motion, etc.)
+      setTimeout(done, 900);
+    }
+
+    overlay.addEventListener("click", open);
+    overlay.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "Escape") {
+        e.preventDefault();
+        open();
+      }
+    });
   }
 
   /* ─────────────────────────────────────────────────────────────
@@ -1400,6 +1618,8 @@
     initShare();
     initFabs();
     initMusic();
+    initShakePetals(); // sets the shake hook…
+    initEntrance(); // …which the entrance tap then fires
   }
 
   if (document.readyState === "loading") {

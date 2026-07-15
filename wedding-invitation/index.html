@@ -71,6 +71,34 @@
 
   <a href="#hero" class="skip-link">Skip to invitation</a>
 
+  <!-- ══════════════════ ENTRANCE ══════════════════
+       The invitation opens behind this. Tapping it reveals the site and starts
+       the music together — the browser only allows sound once the guest has
+       interacted, and this tap is that interaction. Remove this whole block
+       (and initEntrance in script.js) to open straight into the hero. -->
+  <div id="entrance" class="entrance" role="dialog" aria-modal="true"
+       aria-labelledby="entrance-names" tabindex="-1">
+    <div class="entrance-card">
+      <img src="assets/images/decorations/kolam.svg" alt="" class="entrance-kolam" aria-hidden="true">
+      <p class="entrance-eyebrow">Together with our families</p>
+      <h1 id="entrance-names" class="entrance-names">Arjun <span class="text-gold">&amp;</span> Sandra</h1>
+      <img src="assets/images/decorations/divider.svg" alt="" class="entrance-divider" aria-hidden="true">
+      <p class="entrance-date">Sunday, 30<sup>th</sup> August 2026</p>
+
+      <button type="button" id="entrance-open" class="entrance-open">
+        <span class="entrance-open-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 7.5 12 13l8-5.5M4 7h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7Z"
+                  stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Open Invitation
+      </button>
+
+      <p class="entrance-hint"><span aria-hidden="true">♪</span> Best experienced with sound</p>
+    </div>
+  </div>
+
   <!-- ══════════════════ AMBIENT BACKGROUND ══════════════════
        Two fixed layers behind every section: slow warm "blooms" (the glow of
        lamps in the room) and a sparse drift of jasmine and lotus petals.
@@ -93,6 +121,10 @@
     <span class="petal" style="--x:82%; --d:-30s; --s:27s; --sc:.5"><img src="assets/images/decorations/petal-lotus.svg" alt=""></span>
     <span class="petal" style="--x:91%; --d:-13s; --s:31s; --sc:.75"><img src="assets/images/decorations/petal.svg" alt=""></span>
   </div>
+
+  <!-- Shake your phone → a shower of petals falls from the top. JS fills this
+       with petals on a shake and removes them once they land. -->
+  <div class="petal-shower" id="petal-shower" aria-hidden="true"></div>
 
   <!-- ══════════════════ NAV ══════════════════ -->
   <header id="nav" class="site-nav" data-nav>
