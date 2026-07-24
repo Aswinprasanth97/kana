@@ -1169,11 +1169,6 @@ body {
   font-style: normal;
   animation: heartbeat 3.6s ease-in-out infinite;
 }
-.footer-aside {
-  font-size: .92em;
-  color: rgb(77 58 47 / .55);
-}
-
 /* ── Entrance overlay ───────────────────────────────────────── */
 
 body.is-gated { overflow: hidden; }
